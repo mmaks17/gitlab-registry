@@ -1,0 +1,27 @@
+web:
+  image: 'gitlab/gitlab-ce:latest'
+#  restart: always
+  hostname: 'gitlab.mmaks.cf'
+  environment:
+        GITLAB_OMNIBUS_CONFIG: |
+          external_url 'https://gitlab.mmaks.cf'
+          registry_external_url 'https://registry.mmaks.cf'
+          nginx['listen_port'] = 443
+          nginx['listen_https'] = yes
+          nginx['proxy_set_headers'] = { 'X-Forwarded-Proto' => 'https', 'X-Forwarded-Ssl' => 'on' }
+          registry['enable'] = true
+          registry_external_url 'https://registry.mmaks.cf'
+          registry_nginx['listen_port'] = 443
+          registry_nginx['listen_https'] = true
+        VIRTUAL_HOST: gitlab.mmaks.cf,registry.mmaks.cf
+        VIRTUAL_PORT: 443
+        LETSENCRYPT_EMAIL: admin@mmaks.cf
+        LETSENCRYPT_HOST: gitlab.mmaks.cf,registry.gitlab.mmaks.cf
+        CERT_NAME: gitlab.mmaks.cf
+  ports:
+    - '443:443'
+    - '1122:22'
+  volumes:
+    - './config:/etc/gitlab'
+    - './logs:/var/log/gitlab'
+    - './data:/var/opt/gitlab'
